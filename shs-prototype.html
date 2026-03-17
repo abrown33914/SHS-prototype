@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SHS Appointment Prototype</title>
+<style>
+  body { font-family: Arial, sans-serif; font-size: 14px; background: #f0f0f0; margin: 0; padding: 20px; }
+  .screen { display: none; border: 2px solid #333; background: #fff; margin: 0 auto; width: 700px; }
+  .screen.active { display: block; }
+  .navbar { background: #003366; color: white; padding: 8px 12px; font-size: 13px; }
+  .screen-title { background: #e8e8e8; border-bottom: 1px solid #aaa; padding: 10px 16px; font-size: 16px; font-weight: bold; }
+  .screen-body { padding: 16px; }
+  .section-box { border: 1px solid #aaa; padding: 12px; margin-bottom: 14px; background: #fafafa; }
+  .section-label { font-weight: bold; margin-bottom: 8px; font-size: 13px; }
+  .field-row { display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+  .field-group { display: flex; flex-direction: column; gap: 4px; }
+  .field-group label { font-size: 12px; color: #444; }
+  select, input[type=date] { border: 1px solid #888; padding: 5px 8px; font-size: 13px; background: white; }
+  .slot-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .slot { border: 1px solid #555; padding: 6px 12px; font-size: 13px; cursor: pointer; background: #ddeeff; }
+  .slot:hover { background: #bbddff; }
+  .slot.unavailable { background: #eee; color: #999; border-color: #ccc; cursor: not-allowed; text-decoration: line-through; }
+  .note-text { font-size: 12px; color: #555; font-style: italic; margin-top: 6px; }
+  .confirm-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 13px; }
+  .confirm-table td { padding: 6px 8px; border: 1px solid #ccc; }
+  .confirm-table td:first-child { background: #f0f0f0; font-weight: bold; width: 35%; }
+  .policy-box { border: 1px solid #cc0000; background: #fff5f5; padding: 10px; font-size: 12px; margin-bottom: 14px; }
+  .policy-box strong { color: #cc0000; }
+  .reminder-row { font-size: 13px; margin-bottom: 14px; }
+  .btn-row { display: flex; gap: 10px; }
+  .btn-confirm { background: #003366; color: white; border: none; padding: 8px 20px; font-size: 13px; cursor: pointer; }
+  .btn-cancel { background: white; color: #333; border: 1px solid #888; padding: 8px 20px; font-size: 13px; cursor: pointer; }
+  .success-box { border: 1px solid #006600; background: #f0fff0; padding: 16px; text-align: center; font-size: 14px; color: #006600; margin-bottom: 14px; }
+  .proto-note { text-align: center; font-size: 12px; color: #888; font-style: italic; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: Booking -->
+<div class="screen active" id="screen1">
+  <div class="navbar">FGCU Student Health Services — Scheduling Portal</div>
+  <div class="screen-title">Book an Appointment</div>
+  <div class="screen-body">
+
+    <div class="section-box">
+      <div class="section-label">Step 1: Select Appointment Details</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Service Type *</label>
+          <select id="serviceType">
+            <option>-- Select --</option>
+            <option selected>Physical / Wellness Exam</option>
+            <option>Sick Care</option>
+            <option>Women's Health</option>
+            <option>STD/STI Testing</option>
+            <option>Immunizations</option>
+            <option>Birth Control</option>
+            <option>Pregnancy Testing</option>
+            <option>Concussion Evaluation</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Provider (optional)</label>
+          <select id="providerSelect">
+            <option>Any Available</option>
+            <option selected>Dr. Smith</option>
+            <option>NP Johnson</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Date *</label>
+          <input type="date" value="2025-04-01" />
+        </div>
+      </div>
+      <p class="note-text">* All appointment types can now be booked online. No need to call.</p>
+    </div>
+
+    <div class="section-box">
+      <div class="section-label">Step 2: Pick a Time Slot</div>
+      <p class="note-text">Showing available slots for April 1, 2025: Physical / Wellness Exam (45 min slots)</p>
+      <div class="slot-grid">
+        <div class="slot" onclick="selectSlot('8:30 AM')">8:30 AM</div>
+        <div class="slot unavailable">9:00 AM</div>
+        <div class="slot unavailable">9:45 AM</div>
+        <div class="slot" onclick="selectSlot('10:30 AM')">10:30 AM</div>
+        <div class="slot" onclick="selectSlot('11:15 AM')">11:15 AM</div>
+        <div class="slot unavailable">12:00 PM</div>
+        <div class="slot" onclick="selectSlot('1:30 PM')">1:30 PM</div>
+        <div class="slot" onclick="selectSlot('2:15 PM')">2:15 PM</div>
+        <div class="slot unavailable">3:00 PM</div>
+        <div class="slot" onclick="selectSlot('3:45 PM')">3:45 PM</div>
+      </div>
+      <p class="note-text">Strikethrough = already booked. Slots update in real time.</p>
+      <p class="note-text" style="margin-top:8px;">No slots available? <a href="#">Join waitlist</a></p>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCREEN 2: Confirmation -->
+<div class="screen" id="screen2">
+  <div class="navbar">FGCU Student Health Services Scheduling Portal</div>
+  <div class="screen-title">Confirm Your Appointment</div>
+  <div class="screen-body">
+
+    <div class="section-box">
+      <div class="section-label">Appointment Summary</div>
+      <table class="confirm-table">
+        <tr><td>Service Type</td><td id="conf-service">Physical / Wellness Exam</td></tr>
+        <tr><td>Provider</td><td id="conf-provider">Dr. Smith</td></tr>
+        <tr><td>Date</td><td>Tuesday, April 1, 2025</td></tr>
+        <tr><td>Time</td><td id="conf-time">—</td></tr>
+        <tr><td>Duration</td><td>45 minutes</td></tr>
+        <tr><td>Location</td><td>SHS Clinic, Health Sciences Building</td></tr>
+        <tr><td>Reminder sent to</td><td>jsmith@eagle.fgcu.edu</td></tr>
+      </table>
+    </div>
+
+    <div class="policy-box">
+      <strong>Cancellation Policy, Please Read!:</strong><br>
+      You must cancel at least <strong>2 hours before</strong> your appointment to avoid a <strong>$25 no-show fee</strong>.
+      Late cancellations and missed appointments will be charged automatically.
+      Bring your Eagle ID to the appointment. Absence notes are only provided day of.
+    </div>
+
+    <div class="reminder-row">
+      <label><strong>Send reminders via:</strong> &nbsp;
+        <input type="checkbox" checked> Email &nbsp;&nbsp;
+        <input type="checkbox"> SMS
+      </label>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-confirm" onclick="confirmBooking()">Confirm Appointment</button>
+      <button class="btn-cancel" onclick="goBack()">Go Back</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCREEN 3: Success -->
+<div class="screen" id="screen3">
+  <div class="navbar">FGCU Student Health Services — Scheduling Portal</div>
+  <div class="screen-title">Appointment Confirmed</div>
+  <div class="screen-body">
+
+    <div class="success-box">
+      Your appointment has been booked successfully!<br><br>
+      A confirmation email has been sent to jsmith@eagle.fgcu.edu.<br>
+      You will receive a reminder 24 hours before your appointment.
+    </div>
+
+    <div class="section-box">
+      <div class="section-label">Booking Details</div>
+      <table class="confirm-table">
+        <tr><td>Service Type</td><td id="done-service">Physical / Wellness Exam</td></tr>
+        <tr><td>Provider</td><td id="done-provider">Dr. Smith</td></tr>
+        <tr><td>Date</td><td>Tuesday, April 1, 2025</td></tr>
+        <tr><td>Time</td><td id="done-time">—</td></tr>
+        <tr><td>Duration</td><td>45 minutes</td></tr>
+        <tr><td>Location</td><td>SHS Clinic, Health Sciences Building</td></tr>
+      </table>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-confirm" onclick="startOver()">Book Another Appointment</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function selectSlot(time) {
+    document.getElementById('conf-time').innerText = time;
+    document.getElementById('conf-service').innerText = document.getElementById('serviceType').value;
+    document.getElementById('conf-provider').innerText = document.getElementById('providerSelect').value;
+    document.getElementById('screen1').classList.remove('active');
+    document.getElementById('screen2').classList.add('active');
+  }
+
+  function goBack() {
+    document.getElementById('screen2').classList.remove('active');
+    document.getElementById('screen1').classList.add('active');
+  }
+
+  function confirmBooking() {
+    var time = document.getElementById('conf-time').innerText;
+    var service = document.getElementById('conf-service').innerText;
+    var provider = document.getElementById('conf-provider').innerText;
+    document.getElementById('done-time').innerText = time;
+    document.getElementById('done-service').innerText = service;
+    document.getElementById('done-provider').innerText = provider;
+    document.getElementById('screen2').classList.remove('active');
+    document.getElementById('screen3').classList.add('active');
+  }
+
+  function startOver() {
+    document.getElementById('screen3').classList.remove('active');
+    document.getElementById('screen1').classList.add('active');
+  }
+</script>
+
+</body>
+</html>
